@@ -1,0 +1,11 @@
+[package]
+name = "rust-ddd-demo"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "rust_add_demo"
+path = "src/lib.rs"
+
+[dependencies]
+actix-web = "4"
