@@ -9,3 +9,6 @@ path = "src/lib.rs"
 
 [dependencies]
 actix-web = "4"
+chrono = "0.4"
+async-trait = "0.1"
+tokio = { version = "1.4", features = ["full"] }

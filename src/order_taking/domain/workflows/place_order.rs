@@ -1,10 +1,4 @@
-// ワークフローの入力
-#[derive(Debug, Clone)]
-pub struct UnvalidatedOrder {
-    pub order_id: String,
-    pub customer_info: String,
-    pub shipping_address: String,
-}
+use crate::order_taking::UnvalidatedOrder;
 
 // ワークフロー成功時の出力
 #[derive(Debug, Clone)]

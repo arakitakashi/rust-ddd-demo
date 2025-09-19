@@ -9,3 +9,5 @@ pub enum ProductCode {
     Widget(WidgetCode),
     Gizmo(GizmoCode),
 }
+
+pub type CheckProductCodeExists = fn(ProductCode) -> bool;
