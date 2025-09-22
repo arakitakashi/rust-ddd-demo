@@ -1,11 +1,27 @@
 pub mod address;
+pub mod billing_amount;
+pub mod billing_amount;
+pub mod common;
+pub mod customer;
+pub mod dto;
+pub mod function_adapters;
 pub mod order;
+pub mod order_id;
+pub mod order_line;
 pub mod product_code;
 pub mod product_price;
 pub mod quantities;
 
 pub use address::*;
+pub use billing_amount::*;
+pub use billing_amount::*;
+pub use common::*;
+pub use customer::*;
+pub use dto::*;
+pub use function_adapters::*;
 pub use order::*;
+pub use order_id::*;
+pub use order_line::*;
 pub use product_code::*;
 pub use product_price::*;
 pub use quantities::*;

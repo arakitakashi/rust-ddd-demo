@@ -1,28 +1,18 @@
 use super::{
-    AddressValidationError, CheckAddressExists, CheckProductCodeExists, GetProductPrice,
-    OrderQuantity, ProductCode, UnvalidatedAddress,
+    Address, AddressValidationError, CheckAddressExists, CheckProductCodeExists, GetProductPrice,
+    OrderQuantity, ProductCode, UnvalidatedAddress, to_address, to_validated_customer_info,
+    to_validated_orderline,
 };
 use crate::order_taking::ValidatedAddress;
+use crate::order_taking::model::{
+    BillingAmount, OrderId, OrderLine, Price, UnvalidatedCustomerInfo, ValidatedCustomerInfo,
+};
 
-pub type OrderId = ();
-pub type OrderLineId = ();
+// TODO: 未定義
 pub type CustomerId = ();
 
+// TODO: 未定義
 pub type BillingAddress = ();
-pub type Price = ();
-pub type BillingAmount = ();
-
-pub type UnvalidatedCustomerInfo = ();
-pub type ValidatedCustomerInfo = ();
-
-#[derive(Debug, Clone)]
-pub struct OrderLine {
-    pub id: OrderLineId,
-    pub order_id: OrderId,
-    pub product_code: ProductCode,
-    pub order_quantity: OrderQuantity,
-    pub price: Price,
-}
 
 // 仮実装: 価格計算済みの注文としてOrderLineとは本来異なる
 #[derive(Debug, Clone)]
@@ -51,9 +41,8 @@ pub struct ValidatedOrder {
     pub customer_id: CustomerId,
     pub customer_info: ValidatedCustomerInfo,
     pub shipping_address: ValidatedAddress,
-    pub billing_address: BillingAddress,
-    pub order_lines: Vec<OrderLine>,
-    pub amount_to_bill: BillingAmount,
+    pub billing_address: ValidatedAddress,
+    pub order_lines: Vec<ValidatedOrderLine>,
 }
 
 #[derive(Debug, Clone)]
@@ -96,3 +85,38 @@ pub type ValidateOrder = fn(
     CheckAddressExists,
     UnvalidatedOrder,
 ) -> impl Future<Output = Result<ValidatedOrder, ValidationError>>;
+
+pub async fn validate_order(
+    check_product_code_exists: CheckProductCodeExists,
+    check_address_exists: CheckAddressExists,
+    unvalidated_order: UnvalidatedOrder,
+) -> Result<ValidatedOrder, ValidationError> {
+    let order_id = OrderId::create(unvalidated_order);
+
+    let validated_customer_info = to_validated_customer_info(unvalidated_order.customer_info);
+
+    // 非同期処理をシミュレート
+    tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+    let validated_shipping_adderss =
+        to_address(check_address_exists, unvalidated_order.shipping_address);
+
+    // 非同期処理をシミュレート
+    tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+    let validated_billing_address =
+        to_address(check_address_exists, unvalidated_order.billing_address);
+
+    let validated_lines_futures = unvalidated_order.order_lines.into_iter().map(|line| {
+        to_validated_orderline(check_product_code_exists, line);
+    });
+
+    let validated_lines = futures::future::try_join_all(validated_lines_futures).await?;
+
+    Ok(ValidatedOrder {
+        id,
+        customer_id: unvalidated_order.customer_id,
+        customer_info: validated_customer_info,
+        shipping_address: validated_shipping_adderss,
+        billing_address: validated_billing_address,
+        order_lines: validated_lines,
+    })
+}
