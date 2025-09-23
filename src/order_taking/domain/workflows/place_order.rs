@@ -3,8 +3,8 @@ use crate::order_taking::{
 };
 
 use super::{
-    CreateOrderAcknowledgementLetter, SendOrderAcknowledgement, acknowledge_order, create_events,
-    price_order,
+    CreateOrderAcknowledgementLetter, PricingError, SendOrderAcknowledgement, acknowledge_order,
+    create_events, price_order,
 };
 
 // ワークフロー成功時の出力
@@ -25,6 +25,13 @@ pub struct ValidationError {
 #[derive(Debug, Clone)]
 pub enum PlaceOrderError {
     ValidationError(Vec<ValidationError>),
+    PricingError(PricingError),
+}
+
+impl From<ValidationError> for PlaceOrderError {
+    fn from(err: ValidationError) -> Self {
+        PlaceOrderError::ValidationError(err)
+    }
 }
 
 // トップレベルのワークフロー関数型

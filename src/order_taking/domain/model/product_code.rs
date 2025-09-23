@@ -1,5 +1,3 @@
-use std::iter::Product;
-
 use super::predicate_to_passthru;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -66,7 +64,6 @@ impl ProductCode {
 }
 
 pub type CheckProductCodeExists = fn(&ProductCode) -> bool;
-pub const CHECK_PRODUCT_CODE_EXISTS: CheckProductCodeExists = |_product_code: &ProductCode| true;
 
 pub fn check_product(
     check_product_code_exists: CheckProductCodeExists,

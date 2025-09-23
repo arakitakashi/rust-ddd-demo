@@ -1,3 +1,5 @@
+use crate::order_taking::domain::String50;
+
 #[derive(Debug, Clone)]
 pub struct UnvalidatedCustomerInfo {
     pub first_name: String,

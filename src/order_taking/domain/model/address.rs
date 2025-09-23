@@ -1,6 +1,8 @@
 use std::future::Future;
 use std::pin::Pin;
 
+use super::String50;
+
 pub type ValidatedAddress = ();
 
 #[derive(Debug, Clone)]
@@ -55,14 +57,26 @@ impl ZipCode {
     }
 }
 
-// TODO: Futureの理解:
-// 非同期とエラーの両方のエフェクトを持つことを示す。
-pub type CheckAddressExists =
-    fn(UnvalidatedAddress) -> impl Future<Output = Result<CheckedAddress, AddressValidationError>>;
-pub const CHECK_ADDRESS_EXISTS: CheckAddressExists = |_address: &Address| true;
-
 #[derive(Debug, Clone)]
-pub struct AddressValidationError(pub String);
+pub enum AddressValidationError {
+    InvalidFormat(String),
+    AddressNotFound(String),
+}
+
+impl std::fmt::Display for AddressValidationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AddressValidationError::InvalidFormat(msg) => {
+                write!(f, "Invalid address format: {}", msg)
+            }
+            AddressValidationError::AddressNotFound(msg) => {
+                write!(f, "Address not found: {}", msg)
+            }
+        }
+    }
+}
+
+impl std::error::Error for AddressValidationError {}
 
 pub async fn to_address(
     check_address_exists: CheckAddressExists,
@@ -88,3 +102,6 @@ pub async fn to_address(
 
     Ok(address)
 }
+
+pub type CheckAddressExists =
+    fn(UnvalidatedAddress) -> impl Future<Output = Result<CheckedAddress, AddressValidationError>>;

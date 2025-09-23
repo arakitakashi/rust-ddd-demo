@@ -26,9 +26,6 @@ pub const CREATE_ORDER_ACKNOWLEDGEMENT_LETTER: CreateOrderAcknowledgementLetter 
     |_priced_order: PricedOrder| HtmlString(String::from("<html></html>"));
 
 pub type SendOrderAcknowledgement = fn(OrderAcknowledgement) -> impl Future<Output = SendResult>;
-// TODO: 仮実装
-pub const SEND_ORDER_ACKNOWLEDGEMENT: SendOrderAcknowledgement =
-    |_order_acknowledgement: OrderAcknowledgement| async { SendResult::Sent };
 
 pub type SendOrderAcknowledgementOption =
     fn(OrderAcknowledgement) -> Option<OrderAcknowledgementSent>;
