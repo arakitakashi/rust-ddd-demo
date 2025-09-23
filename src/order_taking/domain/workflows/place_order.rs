@@ -1,5 +1,7 @@
 use crate::order_taking::{
-    CheckProductCodeExists, GetProductPrice, UnvalidatedOrder, validate_order,
+    CheckAddressExists, CheckProductCodeExists, CreateOrderAcknowledgementLetter, GetProductPrice,
+    PlaceOrderEvent, SendOrderAcknowledgement, UnvalidatedOrder, acknowledge_order, create_events,
+    price_order, validate_order,
 };
 
 use super::{
@@ -13,25 +15,6 @@ pub struct PlaceOrderEvents {
     pub acknowledgement_sent: String,
     pub order_placed: String,
     pub billable_order_placed: String,
-}
-
-// ワークフロー成功時の出力
-#[derive(Debug, Clone, PartialEq)]
-pub struct ValidationError {
-    pub field_name: String,
-    pub error_description: String,
-}
-
-#[derive(Debug, Clone)]
-pub enum PlaceOrderError {
-    ValidationError(Vec<ValidationError>),
-    PricingError(PricingError),
-}
-
-impl From<ValidationError> for PlaceOrderError {
-    fn from(err: ValidationError) -> Self {
-        PlaceOrderError::ValidationError(err)
-    }
 }
 
 // トップレベルのワークフロー関数型

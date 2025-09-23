@@ -1,6 +1,7 @@
 use super::ProductCode;
-use crate::order_taking::model::{
-    BillingAmount, PricedOrder, PricedOrderLine, ValidatedOrder, to_priced_order_line,
+use crate::order_taking::{
+    PricingError,
+    model::{BillingAmount, PricedOrder, PricedOrderLine, ValidatedOrder, to_priced_order_line},
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -50,8 +51,5 @@ pub fn price_order(
 
     Ok(priced_order)
 }
-
-#[derive(Debug, Clone)]
-pub struct PricingError(pub String);
 
 pub type GetProductPrice = fn(ProductCode) -> Price;

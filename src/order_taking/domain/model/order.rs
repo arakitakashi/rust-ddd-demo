@@ -75,11 +75,6 @@ pub enum Order {
     Priced(PricedOrder),
 }
 
-#[derive(Debug, Clone)]
-pub enum ValidationError {
-    AddressError(AddressValidationError),
-}
-
 pub type ValidateOrder = fn(
     CheckProductCodeExists,
     CheckAddressExists,
