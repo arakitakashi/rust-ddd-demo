@@ -1,7 +1,7 @@
 use crate::order_taking::{
     CheckAddressExists, CheckProductCodeExists, CreateOrderAcknowledgementLetter, GetProductPrice,
-    PlaceOrderEvent, SendOrderAcknowledgement, UnvalidatedOrder, acknowledge_order, create_events,
-    price_order, validate_order,
+    PlaceOrderError, PlaceOrderEvent, SendOrderAcknowledgement, UnvalidatedOrder,
+    acknowledge_order, create_events, price_order, validate_order,
 };
 
 use super::{
@@ -26,7 +26,7 @@ pub fn create_place_order_workflow(
     get_product_price: GetProductPrice,
     create_acknowledgement_letter: CreateOrderAcknowledgementLetter,
     send_acknowledgement: SendOrderAcknowledgement,
-) -> impl Fn(UnvalidatedOrder) -> Result<Vec<PlaceOrderEvents>, String> {
+) -> impl Fn(UnvalidatedOrder) -> Result<Vec<PlaceOrderEvents>, PlaceOrderError> {
     move |unvalidated_order: UnvalidatedOrder| -> Result<Vec<PlaceOrderEvent>, String> {
         // 関数の部分適用
         let validate_order =
@@ -41,9 +41,9 @@ pub fn create_place_order_workflow(
         };
 
         // パイプライン処理
-        let validated_order = validate_order(unvalidated_order);
-        let priced_order = price_order(validated_order);
-        let acknowledgement_option = acknowledge_order(priced_order);
+        let validated_order = validate_order(unvalidated_order)?;
+        let priced_order = price_order(validated_order)?;
+        let acknowledgement_option = acknowledge_order(priced_order)?;
 
         let events = create_events(priced_order, acknowledgement_option);
 

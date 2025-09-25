@@ -3,10 +3,11 @@ use super::{
     OrderQuantity, ProductCode, UnvalidatedAddress, to_address, to_validated_customer_info,
     to_validated_orderline,
 };
-use crate::order_taking::ValidatedAddress;
 use crate::order_taking::model::{
-    BillingAmount, OrderId, OrderLine, Price, UnvalidatedCustomerInfo, ValidatedCustomerInfo,
+    BillingAmount, OrderId, Price, UnvalidatedCustomerInfo, UnvalidatedOrderLine,
+    ValidatedCustomerInfo, ValidatedOrderLine,
 };
+use crate::order_taking::{ValidatedAddress, ValidationError};
 
 // TODO: 未定義
 pub type CustomerId = ();
@@ -31,7 +32,7 @@ pub struct UnvalidatedOrder {
     pub customer_info: UnvalidatedCustomerInfo,
     pub shipping_address: UnvalidatedAddress,
     pub billing_address: BillingAddress,
-    pub order_lines: Vec<OrderLine>,
+    pub order_lines: Vec<UnvalidatedOrderLine>,
     pub amount_to_bill: BillingAmount,
 }
 
@@ -100,11 +101,13 @@ pub async fn validate_order(
     let validated_billing_address =
         to_address(check_address_exists, unvalidated_order.billing_address);
 
-    let validated_lines_futures = unvalidated_order.order_lines.into_iter().map(|line| {
-        to_validated_orderline(check_product_code_exists, line);
-    });
+    let validated_lines: Vec<Result<ValidatedOrderLine, ValidationError>> = unvalidated_order
+        .order_lines
+        .into_iter()
+        .map(|line| to_validated_orderline(check_product_code_exists, line))
+        .collect();
 
-    let validated_lines = futures::future::try_join_all(validated_lines_futures).await?;
+    let validated_lines = validated_lines?;
 
     Ok(ValidatedOrder {
         id,
